@@ -1,0 +1,61 @@
+# XcodeGen spec for the NeonMic app. The .xcodeproj is generated, never
+# committed — after cloning:
+#
+#   cd App && xcodegen && open NeonMic.xcodeproj
+#
+name: NeonMic
+options:
+  bundleIdPrefix: com.francoisdubois
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+packages:
+  NeonMicKit:
+    path: ../NeonMicKit
+targets:
+  NeonMic:
+    type: application
+    platform: macOS
+    sources:
+      - NeonMicApp.swift
+      - NeonMicDesign.swift
+      - Game
+    dependencies:
+      - package: NeonMicKit
+        product: NeonMicKit
+    info:
+      path: Info.plist
+      properties:
+        NSMicrophoneUsageDescription: NEON MIC analyzes your voice to score your singing.
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        LSApplicationCategoryType: public.app-category.music
+        NSPrincipalClass: NSApplication
+        NSHumanReadableCopyright: © 2026 François Dubois
+    entitlements:
+      path: NeonMic.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.device.audio-input: true
+        com.apple.security.files.user-selected.read-only: true
+    settings:
+      base:
+        CODE_SIGN_STYLE: Automatic
+        # "-" is Xcode's "Sign to Run Locally": no development team is
+        # hardcoded, so the CLI build signs ad-hoc (entitlements included).
+        # Picking a team in Signing & Capabilities upgrades this to an
+        # "Apple Development" identity via automatic resolution. An identity
+        # name cannot go here directly: resolving it needs a team, and this
+        # machine has certificates from two different teams.
+        CODE_SIGN_IDENTITY: "-"
+schemes:
+  NeonMic:
+    build:
+      targets:
+        NeonMic: all
+    run:
+      config: Debug
