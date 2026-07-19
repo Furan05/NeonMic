@@ -121,6 +121,19 @@ public struct HighwayFrame: Equatable, Sendable {
         ((pitch % 12) + 12) % 12
     }
 
+    /// The continuous lane coordinate for a sung (fractional) MIDI note,
+    /// folded into the same 12-lane space as ``laneIndex(forPitch:)``:
+    /// `0 ≤ result < 12`, with C at 0 (MIDI 60 → 0, chart pitch 0).
+    ///
+    /// On whole semitones this agrees exactly with the note lanes —
+    /// `lanePosition(forMidiNote: 60 + Double(p)) == Double(laneIndex(forPitch: p))`
+    /// — which is what keeps a live pitch indicator vertically aligned with
+    /// the note bars the same reading is scored against.
+    public static func lanePosition(forMidiNote midiNote: Double) -> Double {
+        let folded = midiNote.truncatingRemainder(dividingBy: 12)
+        return folded < 0 ? folded + 12 : folded
+    }
+
     private static func lyricLine(for phrase: Phrase, phraseIndex: Int, currentBeat: Double) -> LyricLine {
         LyricLine(
             phraseIndex: phraseIndex,

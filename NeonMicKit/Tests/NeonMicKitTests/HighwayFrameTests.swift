@@ -57,6 +57,26 @@ final class HighwayFrameTests: XCTestCase {
         XCTAssertEqual(HighwayFrame.laneIndex(forPitch: -13), 11)
     }
 
+    func testLanePositionMatchesNoteLanesOnWholeSemitones() {
+        // The comet and the note bars must share one fold: a sung MIDI note
+        // lands exactly on the lane of the chart pitch it is scored against.
+        for pitch in -24...24 {
+            XCTAssertEqual(
+                HighwayFrame.lanePosition(forMidiNote: 60 + Double(pitch)),
+                Double(HighwayFrame.laneIndex(forPitch: pitch)),
+                accuracy: 1e-9,
+                "chart pitch \(pitch)"
+            )
+        }
+    }
+
+    func testLanePositionFoldsFractionsIntoOneOctave() {
+        XCTAssertEqual(HighwayFrame.lanePosition(forMidiNote: 61.5), 1.5, accuracy: 1e-9)
+        XCTAssertEqual(HighwayFrame.lanePosition(forMidiNote: 73.5), 1.5, accuracy: 1e-9)
+        XCTAssertEqual(HighwayFrame.lanePosition(forMidiNote: 59.5), 11.5, accuracy: 1e-9)
+        XCTAssertEqual(HighwayFrame.lanePosition(forMidiNote: -0.5), 11.5, accuracy: 1e-9)
+    }
+
     func testLanesAreStableAcrossFrames() throws {
         let early = try XCTUnwrap(note("ya", in: frame(at: 2.0)))
         let late = try XCTUnwrap(note("ya", in: frame(at: 3.6)))
