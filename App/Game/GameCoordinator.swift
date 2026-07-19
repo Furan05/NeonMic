@@ -53,6 +53,9 @@ final class GameCoordinator {
     private var pitchTracker: PitchTracker?
     private var trackerSampleRate: Double = 0
     private var micTask: Task<Void, Never>?
+    /// Whether we hold a sandbox access claim on `audioURL` (released in
+    /// ``stop()`` — playback reads the file for the whole run).
+    private var isAccessingAudio = false
 
     /// Whether the run is paused (player and mic tap stop together).
     private(set) var isPaused = false
@@ -71,6 +74,13 @@ final class GameCoordinator {
     /// clock and the scoring session, and loads (but does not start) the
     /// backing track.
     init(chartURL: URL, audioURL: URL) throws {
+        // Sandboxed app, user-picked files: claim access for exactly as long
+        // as each is read. The chart is consumed here during parsing; the
+        // audio file backs playback for the whole run, so its claim is held
+        // until stop().
+        let accessingChart = chartURL.startAccessingSecurityScopedResource()
+        defer { if accessingChart { chartURL.stopAccessingSecurityScopedResource() } }
+
         let parsed = try UltraStarParser.parseCollectingWarnings(fileAt: chartURL)
         self.song = parsed.song
         self.warnings = parsed.warnings
@@ -80,7 +90,14 @@ final class GameCoordinator {
         let clock = SongClock(song: parsed.song, latencyOffsetMs: latencyOffsetMs)
         self.session = GameSession(song: parsed.song, voiceIndex: 0, clock: clock)
 
-        try songPlayer.load(fileAt: audioURL)
+        let accessingAudio = audioURL.startAccessingSecurityScopedResource()
+        do {
+            try songPlayer.load(fileAt: audioURL)
+        } catch {
+            if accessingAudio { audioURL.stopAccessingSecurityScopedResource() }
+            throw error
+        }
+        self.isAccessingAudio = accessingAudio
         songPlayer.onPlaybackEnded = { [weak self] in
             guard let self else { return }
             self.isFinished = true
@@ -169,6 +186,10 @@ final class GameCoordinator {
     func stop() {
         stopMic()
         songPlayer.stop()
+        if isAccessingAudio {
+            audioURL.stopAccessingSecurityScopedResource()
+            isAccessingAudio = false
+        }
     }
 
     // MARK: Mic pipeline

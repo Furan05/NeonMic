@@ -10,13 +10,36 @@ struct DebugSongPicker: View {
     /// audio load failures) are displayed in place.
     let onSing: (_ chartURL: URL, _ audioURL: URL) throws -> Void
 
+    /// Which file the single `.fileImporter` is currently picking. SwiftUI
+    /// honors only one `.fileImporter` per view, so both buttons share one
+    /// importer and this state routes the dialog and its result.
+    private enum PickerTarget {
+        case chart
+        case audio
+
+        var allowedContentTypes: [UTType] {
+            switch self {
+            case .chart:
+                // Community charts are .txt but don't always announce a
+                // plain-text UTI — also accept anything with the extension.
+                var types: [UTType] = [.plainText]
+                if let txt = UTType(filenameExtension: "txt") {
+                    types.append(txt)
+                }
+                return types
+            case .audio:
+                return [.audio]
+            }
+        }
+    }
+
     @State private var chartURL: URL?
     @State private var audioURL: URL?
     @State private var song: Song?
     @State private var warnings: [ParseWarning] = []
     @State private var errorMessage: String?
-    @State private var pickingChart = false
-    @State private var pickingAudio = false
+    @State private var pickerTarget: PickerTarget = .chart
+    @State private var isPickingFile = false
 
     private static let chartBookmarkKey = "debug.chartBookmark"
     private static let audioBookmarkKey = "debug.audioBookmark"
@@ -41,12 +64,12 @@ struct DebugSongPicker: View {
                         label: "chart",
                         fileName: chartURL?.lastPathComponent,
                         accent: NeonMicDesign.electricCyan
-                    ) { pickingChart = true }
+                    ) { pick(.chart) }
                     pickerRow(
                         label: "audio",
                         fileName: audioURL?.lastPathComponent,
                         accent: NeonMicDesign.ultraViolet
-                    ) { pickingAudio = true }
+                    ) { pick(.audio) }
                 }
 
                 if let song {
@@ -93,11 +116,15 @@ struct DebugSongPicker: View {
             }
             .padding(40)
         }
-        .fileImporter(isPresented: $pickingChart, allowedContentTypes: [.plainText, .text]) { result in
-            if case .success(let url) = result { select(chart: url) }
-        }
-        .fileImporter(isPresented: $pickingAudio, allowedContentTypes: [.audio]) { result in
-            if case .success(let url) = result { select(audio: url) }
+        .fileImporter(
+            isPresented: $isPickingFile,
+            allowedContentTypes: pickerTarget.allowedContentTypes
+        ) { result in
+            guard case .success(let url) = result else { return }
+            switch pickerTarget {
+            case .chart: select(chart: url)
+            case .audio: select(audio: url)
+            }
         }
         .onAppear(perform: restoreLastSelection)
     }
@@ -115,20 +142,31 @@ struct DebugSongPicker: View {
 
     // MARK: Selection
 
+    private func pick(_ target: PickerTarget) {
+        pickerTarget = target
+        isPickingFile = true
+    }
+
     private func select(chart url: URL) {
-        _ = url.startAccessingSecurityScopedResource()
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         chartURL = url
         saveBookmark(for: url, key: Self.chartBookmarkKey)
         loadChart(at: url)
     }
 
     private func select(audio url: URL) {
-        _ = url.startAccessingSecurityScopedResource()
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         audioURL = url
         saveBookmark(for: url, key: Self.audioBookmarkKey)
     }
 
     private func loadChart(at url: URL) {
+        // Balanced claim around the read; GameCoordinator makes its own
+        // claim when SING starts the run.
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         do {
             let parsed = try UltraStarParser.parseCollectingWarnings(fileAt: url)
             song = parsed.song
@@ -164,9 +202,9 @@ struct DebugSongPicker: View {
     private func restoreURL(forKey key: String) -> URL? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return nil }
         var isStale = false
-        let url = (try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale))
+        // Resolving only — whoever reads the URL claims access around the
+        // read (loadChart here, GameCoordinator for the run).
+        return (try? URL(resolvingBookmarkData: data, options: .withSecurityScope, relativeTo: nil, bookmarkDataIsStale: &isStale))
             ?? (try? URL(resolvingBookmarkData: data, relativeTo: nil, bookmarkDataIsStale: &isStale))
-        _ = url?.startAccessingSecurityScopedResource()
-        return url
     }
 }
