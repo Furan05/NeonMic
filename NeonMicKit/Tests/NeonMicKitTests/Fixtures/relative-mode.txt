@@ -1,0 +1,14 @@
+#TITLE:Relative Motion
+#ARTIST:Test Signal
+#BPM:300
+#GAP:0
+#RELATIVE:YES
+: 0 2 0 Count
+: 3 2 2  it
+: 6 2 4  up
+- 10 12
+: 0 2 4 Step
+: 3 2 2  down
+- 8 10
+: 0 4 0 Home
+E

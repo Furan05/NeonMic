@@ -9,6 +9,10 @@ let package = Package(
     ],
     targets: [
         .target(name: "NeonMicKit"),
-        .testTarget(name: "NeonMicKitTests", dependencies: ["NeonMicKit"])
+        .testTarget(
+            name: "NeonMicKitTests",
+            dependencies: ["NeonMicKit"],
+            resources: [.copy("Fixtures")]
+        )
     ]
 )

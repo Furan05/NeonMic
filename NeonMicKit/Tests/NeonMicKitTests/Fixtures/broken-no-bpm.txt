@@ -1,0 +1,6 @@
+#TITLE:Broken Chart
+#ARTIST:No Tempo
+#GAP:100
+: 0 2 0 la
+: 3 2 0  la
+E

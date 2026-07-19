@@ -1,0 +1,31 @@
+#TITLE:Shibuya Rain Dance
+#ARTIST:The Neon Signals
+#MP3:shibuya-rain-dance.mp3
+#AUDIO:shibuya-rain-dance.ogg
+#BPM:285,5
+#GAP:1200
+#COVER:shibuya-cover.jpg
+#LANGUAGE:English
+#GENRE:Synthpop
+#YEAR:2024
+: 0 3 12 Nee
+* 4 3 16 on~
+: 8 2 12  rain
+: 11 2 14  on
+: 14 4 16  me
+- 20
+: 24 2 12 Shi
+: 27 2 14 bu
+: 30 3 16 ya
+* 34 4 19  lights
+- 40
+: 44 2 12 Dan
+: 47 2 12 cing
+: 50 2 14  through
+: 53 3 16  the
+: 57 4 19  storm
+- 63
+: 66 2 16 Sing
+: 69 2 14 ing
+* 72 6 12  home
+E

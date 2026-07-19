@@ -1,0 +1,17 @@
+﻿#TITLE:Quirky Test Pattern
+#ARTIST:The Edge Cases
+#BPM:200
+#GAP:-250
+#CREATOR:NeonMic Fixtures
+#MYSTERYTAG:totally unknown
+#PREVIEWSTART:12,5
+: 0 2 0 Glitch
+F 3 2 0  in
+R 6 2 0  the
+G 9 2 0  wires
+: twelve 2 0 broken
+- 14
+* 16 4 7 Sig
+: 21 2 5 nal
+E
+: 99 9 9 ignored after end

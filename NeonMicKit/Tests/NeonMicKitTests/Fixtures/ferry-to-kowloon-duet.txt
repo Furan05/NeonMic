@@ -1,0 +1,26 @@
+#TITLE:Ferry to Kowloon
+#ARTIST:Harbour Lights Duo
+#MP3:ferry-to-kowloon.mp3
+#BPM:240
+#GAP:500
+#LANGUAGE:English
+P1
+: 0 2 5 Cross
+: 3 2 7 ing
+: 6 4 9  the
+: 11 3 7  bay
+- 16
+: 20 2 5 Ci
+: 23 2 7 ty
+: 26 4 9  turns
+: 31 3 12  gold
+- 36
+P2
+: 40 2 9 Har
+: 43 2 7 bour
+: 46 4 5  bells
+- 52
+: 56 2 7 Call
+: 59 2 9 ing
+: 62 4 12  me
+E
