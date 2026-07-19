@@ -14,3 +14,10 @@ App/Info.plist
 .build/
 .swiftpm/
 Package.resolved
+
+# Local song library: charts embed copyrighted lyrics, audio is licensed
+# content — personal, never committed. (library/* instead of library/ so
+# the README below can be re-included: git cannot negate a file inside a
+# fully ignored directory.)
+library/*
+!library/README.md
