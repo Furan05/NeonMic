@@ -134,7 +134,9 @@ public struct YtDlpVideoFetcher: VideoFetching {
             let data = stderr.fileHandleForReading.readDataToEndOfFile()
             let message = String(decoding: data, as: UTF8.self)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            throw VideoDownloadError.ytDlpFailed(exitCode: status, message: message)
+            // Turn yt-dlp's prose failure into a specific case where we can
+            // (private / removed / DRM / region / ffmpeg / offline).
+            throw VideoDownloadError.fromYtDlp(exitCode: status, message: message)
         }
 
         // The template's %(ext)s means the exact name depends on the source;

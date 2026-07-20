@@ -423,6 +423,50 @@ final class VideoDownloaderTests: XCTestCase {
         }
     }
 
+    // MARK: - Error classification (pure)
+
+    func testYtDlpStderrClassifiesToSpecificCases() {
+        func classify(_ stderr: String) -> VideoDownloadError {
+            VideoDownloadError.fromYtDlp(exitCode: 1, message: stderr)
+        }
+        XCTAssertEqual(classify("ERROR: Private video. Sign in if you've been granted access"), .privateVideo)
+        XCTAssertEqual(classify("ERROR: Video unavailable. This video is no longer available"), .videoUnavailable)
+        XCTAssertEqual(classify("ERROR: This video is DRM protected"), .drmProtected)
+        XCTAssertEqual(classify("ERROR: The uploader has not made this video available in your country"), .regionRestricted)
+        XCTAssertEqual(classify("ERROR: You have requested merging of multiple formats but ffmpeg is not installed"), .ffmpegRequired)
+        XCTAssertEqual(classify("ERROR: Unable to download webpage: <urlopen error [Errno 8] getaddrinfo failed>"), .networkUnavailable)
+    }
+
+    func testYtDlpStderrFallsBackToYtDlpFailed() {
+        let error = VideoDownloadError.fromYtDlp(exitCode: 2, message: "ERROR: something weird happened")
+        XCTAssertEqual(error, .ytDlpFailed(exitCode: 2, message: "ERROR: something weird happened"))
+    }
+
+    func testClassifyMapsSystemErrors() {
+        XCTAssertEqual(
+            VideoDownloadError.classify(URLError(.notConnectedToInternet)), .networkUnavailable)
+        XCTAssertEqual(
+            VideoDownloadError.classify(URLError(.timedOut)), .networkUnavailable)
+        XCTAssertEqual(
+            VideoDownloadError.classify(
+                NSError(domain: NSCocoaErrorDomain, code: NSFileWriteOutOfSpaceError)),
+            .insufficientStorage)
+        XCTAssertEqual(
+            VideoDownloadError.classify(
+                NSError(domain: NSCocoaErrorDomain, code: NSFileWriteNoPermissionError)),
+            .writePermissionDenied)
+        XCTAssertEqual(
+            VideoDownloadError.classify(NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC))),
+            .insufficientStorage)
+    }
+
+    func testClassifyPassesThroughKnownAndWrapsUnknown() {
+        XCTAssertEqual(VideoDownloadError.classify(VideoDownloadError.drmProtected), .drmProtected)
+        let unknown = NSError(domain: "com.example.weird", code: 42,
+                              userInfo: [NSLocalizedDescriptionKey: "boom"])
+        XCTAssertEqual(VideoDownloadError.classify(unknown), .downloadFailed(message: "boom"))
+    }
+
     // MARK: - Helpers
 
     /// Polls `condition` (up to 2 s) and fails the test if it never holds.

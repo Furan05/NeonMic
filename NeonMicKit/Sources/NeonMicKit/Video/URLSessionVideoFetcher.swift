@@ -70,14 +70,21 @@ public struct URLSessionVideoFetcher: VideoFetching {
             if Task.isCancelled || (error as? URLError)?.code == .cancelled {
                 throw CancellationError()
             }
-            throw error
+            // Normalize offline / disk-full / permission failures so the UI
+            // gets a specific case instead of a raw NSError.
+            throw VideoDownloadError.classify(error)
         }
 
         try handle.close()
         if fileManager.fileExists(atPath: destination.path) {
             try fileManager.removeItem(at: destination)
         }
-        try fileManager.moveItem(at: staging, to: destination)
+        do {
+            try fileManager.moveItem(at: staging, to: destination)
+        } catch {
+            try? fileManager.removeItem(at: staging)
+            throw VideoDownloadError.classify(error)
+        }
         reporter.onProgress(DownloadProgress(
             phase: .fetchingVideo,
             fractionCompleted: 1,

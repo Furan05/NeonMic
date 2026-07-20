@@ -24,6 +24,8 @@ targets:
       - NeonMicDesign.swift
       - VideoDownloadNotifier.swift
       - Game
+      - Views
+      - Services
     dependencies:
       - package: NeonMicKit
         product: NeonMicKit
