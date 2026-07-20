@@ -1,8 +1,9 @@
 # macOS
 .DS_Store
 
-# Local agent instructions — kept out of the repo
+# Local agent instructions and per-machine Claude Code settings
 CLAUDE.md
+.claude/
 
 # Xcode
 DerivedData/
