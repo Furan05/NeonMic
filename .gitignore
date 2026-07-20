@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# Local agent instructions — kept out of the repo
+CLAUDE.md
+
 # Xcode
 DerivedData/
 xcuserdata/
