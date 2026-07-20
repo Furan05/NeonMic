@@ -35,6 +35,10 @@ public struct Song: Equatable, Sendable {
     /// Headers the parser does not model, keyed by uppercased header name
     /// (for example `"CREATOR"`). Unknown headers are preserved, never an error.
     public var rawHeaders: [String: String]
+    /// The song's folder inside the user's library, set by ``LibraryScanner``.
+    /// Nil for charts parsed outside a library scan (drag & drop, tests);
+    /// video conveniences like ``videoPath`` need it to resolve local files.
+    public var libraryFolderURL: URL?
 
     /// Creates a song.
     public init(
@@ -51,7 +55,8 @@ public struct Song: Equatable, Sendable {
         year: Int? = nil,
         isRelative: Bool = false,
         voices: [Voice] = [],
-        rawHeaders: [String: String] = [:]
+        rawHeaders: [String: String] = [:],
+        libraryFolderURL: URL? = nil
     ) {
         self.title = title
         self.artist = artist
@@ -67,6 +72,7 @@ public struct Song: Equatable, Sendable {
         self.isRelative = isRelative
         self.voices = voices
         self.rawHeaders = rawHeaders
+        self.libraryFolderURL = libraryFolderURL
     }
 
     /// Converts a chart beat position to a time offset from the start of the

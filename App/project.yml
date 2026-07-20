@@ -22,6 +22,7 @@ targets:
     sources:
       - NeonMicApp.swift
       - NeonMicDesign.swift
+      - VideoDownloadNotifier.swift
       - Game
     dependencies:
       - package: NeonMicKit
@@ -41,7 +42,12 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.device.audio-input: true
-        com.apple.security.files.user-selected.read-only: true
+        # read-write (upgraded from read-only): video downloads and audio
+        # extraction write into the user-picked library folder.
+        com.apple.security.files.user-selected.read-write: true
+        # Video downloads (URLSession and the yt-dlp subprocess, which
+        # inherits the sandbox) need outbound network access.
+        com.apple.security.network.client: true
     settings:
       base:
         CODE_SIGN_STYLE: Automatic

@@ -1,7 +1,12 @@
 import SwiftUI
+import NeonMicKit
 
 @main
 struct NeonMicApp: App {
+    init() {
+        VideoDownloaderService.shared.notifier = VideoDownloadNotifier()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()
