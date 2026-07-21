@@ -21,6 +21,7 @@ struct SongbookView: View {
     @State private var search = ""
     @State private var selectedID: LibrarySong.ID?
     @State private var showingDownloads = false
+    @State private var showingAutoCreate = false
     @State private var isPickingFolder = false
 
     private enum ViewMode { case list, grid }
@@ -31,7 +32,9 @@ struct SongbookView: View {
 
             switch library.state {
             case .noLibrary:
-                EmptyLibraryView { isPickingFolder = true }
+                EmptyLibraryView(
+                    onChoose: { isPickingFolder = true },
+                    onAutoCreate: { showingAutoCreate = true })
             case .scanning:
                 scanning
             case .loaded:
@@ -47,6 +50,10 @@ struct SongbookView: View {
             VideoDownloadListView()
                 .environment(downloads)
                 .frame(minWidth: 560, minHeight: 480)
+        }
+        .sheet(isPresented: $showingAutoCreate) {
+            AutoSongCreatorView(onClose: { showingAutoCreate = false })
+                .environment(library)
         }
         // A finished download changes what's on disk — refresh the badges.
         .onChange(of: downloads.completedItems.count) { library.refreshVideoStatus() }
@@ -108,6 +115,15 @@ struct SongbookView: View {
 
     private var actionButtons: some View {
         HStack(spacing: 10) {
+            Button {
+                showingAutoCreate = true
+            } label: {
+                Label("Création auto", systemImage: "wand.and.stars")
+            }
+            .buttonStyle(NeonButtonStyle(accent: NeonMicDesign.ultraViolet))
+            .controlSize(.small)
+            .help("Créer une chanson depuis une URL YouTube")
+
             Button {
                 downloadSelected()
             } label: {
@@ -355,9 +371,11 @@ struct SongbookView: View {
 
 // MARK: - Empty library
 
-/// Shown before a library folder is chosen: a neon prompt and a picker button.
+/// Shown before a library folder is chosen: a neon prompt, a folder picker,
+/// and the automatic-creation entry point.
 private struct EmptyLibraryView: View {
     var onChoose: () -> Void
+    var onAutoCreate: () -> Void
 
     var body: some View {
         VStack(spacing: 22) {
@@ -376,8 +394,16 @@ private struct EmptyLibraryView: View {
                     .font(.system(size: 12, weight: .medium, design: .monospaced))
                     .foregroundStyle(NeonMicDesign.paper.opacity(0.45))
             }
-            Button("Choisir la bibliothèque…", action: onChoose)
-                .buttonStyle(NeonButtonStyle(accent: NeonMicDesign.electricCyan))
+            HStack(spacing: 14) {
+                Button("Choisir la bibliothèque…", action: onChoose)
+                    .buttonStyle(NeonButtonStyle(accent: NeonMicDesign.electricCyan))
+                Button {
+                    onAutoCreate()
+                } label: {
+                    Label("Création auto", systemImage: "wand.and.stars")
+                }
+                .buttonStyle(NeonButtonStyle(accent: NeonMicDesign.ultraViolet))
+            }
         }
         .padding(40)
     }
