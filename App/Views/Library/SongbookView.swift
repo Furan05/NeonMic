@@ -384,7 +384,7 @@ private struct EmptyLibraryView: View {
                 .foregroundStyle(NeonMicDesign.neonPink)
                 .neonGlow(NeonMicDesign.neonPink, radius: 12)
             VStack(spacing: 6) {
-                Image(systemName: "folder.badge.music")
+                Image(systemName: "music.note.house.fill")
                     .font(.system(size: 40, weight: .light))
                     .foregroundStyle(NeonMicDesign.electricCyan)
                 Text("Choisis ton dossier de bibliothèque")

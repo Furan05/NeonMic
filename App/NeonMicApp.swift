@@ -44,12 +44,6 @@ struct RootView: View {
         }
         .frame(minWidth: 1024, minHeight: 640)
         .background(NeonMicDesign.ink)
-        .environment(library)
-        .environment(downloads)
-        .environment(coordinator)
-        .environment(network)
-        .environment(banners)
-        .environment(errorHandler)
         // The download HUD floats over whatever screen is showing.
         .overlay(alignment: .bottomTrailing) {
             DownloadOverlayView()
@@ -60,6 +54,14 @@ struct RootView: View {
             BannerHostView()
                 .padding(.horizontal, 20)
         }
+        // Environment must wrap the overlays too, or their content (which reads
+        // DownloadCenter / BannerCenter) renders outside the injected scope.
+        .environment(library)
+        .environment(downloads)
+        .environment(coordinator)
+        .environment(network)
+        .environment(banners)
+        .environment(errorHandler)
         .task { library.restore() }
     }
 

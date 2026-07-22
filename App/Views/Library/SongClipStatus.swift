@@ -53,7 +53,7 @@ enum SongClipStatus {
         case .downloaded: "checkmark.circle.fill"
         case .downloading: "arrow.down.circle"
         case .failed: "exclamationmark.triangle.fill"
-        case .available: "arrow.down.circle.dotted"
+        case .available: "icloud.and.arrow.down"
         case .none: nil
         }
     }
