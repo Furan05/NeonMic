@@ -44,10 +44,6 @@ final class VideoDownloaderTests: XCTestCase {
         XCTAssertEqual(template, "/tmp/Song.%(ext)s")
     }
 
-    func testYtDlpLocateExecutableReturnsNilWhenAbsent() {
-        XCTAssertNil(YtDlpVideoFetcher.locateExecutable(searchPaths: ["/nonexistent/yt-dlp"]))
-    }
-
     func testFetchWithoutYtDlpThrowsNotFound() async {
         let fetcher = YtDlpVideoFetcher(executableURL: nil)
         let source = URL(string: "https://www.youtube.com/watch?v=x")!

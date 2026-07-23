@@ -144,7 +144,7 @@ public struct YouTubeMetadataProvider: VideoMetadataFetching {
 
     public init(
         runner: any CommandRunning = ProcessCommandRunner(),
-        executableURL: URL? = YtDlpVideoFetcher.locateExecutable()
+        executableURL: URL? = YtDlpWrapper.executablePath
     ) {
         self.runner = runner
         self.executableURL = executableURL

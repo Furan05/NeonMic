@@ -17,37 +17,14 @@ import Foundation
 /// to the user.
 public struct YtDlpVideoFetcher: VideoFetching {
 
-    /// Locations tried, in order, by ``locateExecutable(searchPaths:fileManager:)``.
-    public static let defaultSearchPaths = [
-        "/opt/homebrew/bin/yt-dlp",
-        "/usr/local/bin/yt-dlp",
-        "/usr/bin/yt-dlp",
-    ]
-
     /// The resolved yt-dlp binary; nil when none was found at init time.
+    /// Location lives in ``YtDlpWrapper`` — this fetcher only runs it.
     public let executableURL: URL?
 
-    /// Creates a fetcher, locating yt-dlp in the default search paths unless
-    /// an explicit executable is given.
-    public init(executableURL: URL? = YtDlpVideoFetcher.locateExecutable()) {
+    /// Creates a fetcher, using ``YtDlpWrapper/executablePath`` to locate
+    /// yt-dlp unless an explicit executable is given.
+    public init(executableURL: URL? = YtDlpWrapper.executablePath) {
         self.executableURL = executableURL
-    }
-
-    /// Returns the first existing executable among `searchPaths`, or nil.
-    /// The `NEONMIC_YTDLP` environment variable, when set, wins over the
-    /// built-in paths.
-    public static func locateExecutable(
-        searchPaths: [String] = defaultSearchPaths,
-        fileManager: FileManager = .default
-    ) -> URL? {
-        var candidates = searchPaths
-        if let override = ProcessInfo.processInfo.environment["NEONMIC_YTDLP"] {
-            candidates.insert(override, at: 0)
-        }
-        for path in candidates where fileManager.isExecutableFile(atPath: path) {
-            return URL(fileURLWithPath: path)
-        }
-        return nil
     }
 
     /// The yt-dlp invocation for `source`, writing to `outputTemplate`

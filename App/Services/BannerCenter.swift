@@ -145,8 +145,9 @@ enum ErrorActionRunner {
             open("x-apple.systempreferences:com.apple.settings.Storage")
 
         case .installYtDlp:
-            copy("brew install yt-dlp")
-            banners.success("Commande copiée", "Colle-la dans le Terminal : brew install yt-dlp")
+            copy(YtDlpWrapper.installCommand)
+            banners.success("Commande copiée",
+                            "Colle-la dans le Terminal : \(YtDlpWrapper.installCommand), puis relance l'app.")
 
         case .installFfmpeg:
             copy("brew install ffmpeg")

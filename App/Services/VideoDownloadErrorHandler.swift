@@ -335,10 +335,15 @@ final class VideoDownloadErrorHandler {
         // Tooling
         case .ytDlpNotFound:
             return ErrorPresentation(
-                title: "Outil manquant",
-                message: "Installe yt-dlp pour récupérer les clips : brew install yt-dlp.",
+                title: "yt-dlp manquant",
+                message: "Installe yt-dlp puis relance NEON MIC : \(YtDlpWrapper.installCommand).",
                 severity: .warning,
-                explanation: "Le programme yt-dlp, requis pour les sources type YouTube, est introuvable sur ce Mac.",
+                explanation: """
+                yt-dlp est requis pour les sources type YouTube (téléchargement et métadonnées). \
+                NEON MIC l'a cherché dans /opt/homebrew/bin (Apple Silicon), /usr/local/bin (Intel), \
+                /opt/local/bin (MacPorts), ~/.local/bin (pip) et /usr/bin, puis dans le PATH. \
+                L'app ne partage pas le PATH du Terminal : installe via Homebrew, puis redémarre l'application.
+                """,
                 actions: [.installYtDlp, .retry],
                 isRetryable: true)
         case .ffmpegRequired:

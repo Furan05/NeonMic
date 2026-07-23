@@ -147,7 +147,7 @@ final class AutoSongCreator {
         if let error = error as? LyricsError {
             switch error {
             case .notFound: return "Aucune parole trouvée pour ce titre. Corrige l'artiste/titre et réessaie."
-            case .ytDlpNotFound: return "yt-dlp est requis pour lire la vidéo (brew install yt-dlp)."
+            case .ytDlpNotFound: return "yt-dlp est requis. Installe-le puis relance NEON MIC : \(YtDlpWrapper.installCommand)."
             case .metadataUnavailable(let detail): return "Métadonnées indisponibles : \(detail)"
             case .invalidURL(let raw): return "URL invalide : \(raw)"
             case .badResponse(let status): return "Le service de paroles a répondu \(status)."

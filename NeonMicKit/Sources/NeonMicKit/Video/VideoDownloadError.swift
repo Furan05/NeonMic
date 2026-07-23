@@ -28,7 +28,7 @@ public enum VideoDownloadError: Error, Equatable {
 
     // MARK: Tooling
 
-    /// No yt-dlp executable was found — see ``YtDlpVideoFetcher/locateExecutable(searchPaths:fileManager:)``.
+    /// No yt-dlp executable was found — see ``YtDlpWrapper/findExecutablePath(searchPaths:environment:homeDirectory:fileManager:)``.
     case ytDlpNotFound
     /// yt-dlp needs `ffmpeg` on the PATH to merge the chosen 1080p streams and
     /// could not find it (`brew install ffmpeg`).
@@ -154,5 +154,28 @@ public enum VideoDownloadError: Error, Equatable {
             return .networkUnavailable
         }
         return .ytDlpFailed(exitCode: exitCode, message: message)
+    }
+}
+
+extension VideoDownloadError: LocalizedError {
+    /// A clear, actionable message. Used for logs and as a fallback where the
+    /// app's localized presentation layer is not in play; the tooling cases
+    /// name the exact fix and to relaunch after installing.
+    public var errorDescription: String? {
+        switch self {
+        case .ytDlpNotFound:
+            return """
+            yt-dlp was not found. Install it and relaunch NEON MIC:
+                \(YtDlpWrapper.installCommand)
+            Searched: /opt/homebrew/bin (Apple Silicon), /usr/local/bin (Intel), \
+            /opt/local/bin (MacPorts), ~/.local/bin (pip), /usr/bin, then $PATH. \
+            A GUI app does not inherit the Terminal's PATH, so a fresh install is \
+            only picked up after a relaunch.
+            """
+        case .ffmpegRequired:
+            return "ffmpeg is required to merge 1080p video and audio. Install it with `brew install ffmpeg`, then retry."
+        default:
+            return nil
+        }
     }
 }
